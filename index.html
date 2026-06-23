@@ -726,10 +726,10 @@ function initDashboard(){
   // Atualizar disponibilidade do Vínculo
   const btnBucal2=document.getElementById('ind-bucal');
   if(btnBucal2){
-    const hasBucal2=SUMMARY_BUCAL.some(s=>s.municipio===mun);
+    const hasBucal2=SUMMARY_BUCAL.some(s=>s.municipio===firstMun);
     btnBucal2.classList.toggle('avail',hasBucal2);
     if(!hasBucal2&&activeInd==='bucal'){
-      const fallback=['gestacao','idosa'].find(i=>indAvailForMun(mun,i));
+      const fallback=['gestacao','idosa'].find(i=>indAvailForMun(firstMun,i));
       if(fallback) selectInd(fallback, document.getElementById('ind-'+fallback));
     }
   }
