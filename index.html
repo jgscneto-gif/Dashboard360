@@ -263,11 +263,12 @@ tbody td.tl{text-align:left}
           </div>
           <div>
             <label class="adm-lbl">Município(s) *</label>
-            <select class="adm-inp" id="adm-mun" multiple size="3" style="height:auto">
+            <select class="adm-inp" id="adm-mun" multiple size="4" style="height:auto">
               <option value="SÃO JOSÉ DE RIBAMAR">São José de Ribamar</option>
               <option value="PRIMEIRA CRUZ">Primeira Cruz</option>
               <option value="SÃO ROBERTO">São Roberto</option>
               <option value="SANTO AMARO DO MARANHÃO">Santo Amaro</option>
+              <option value="ITAPECURU-MIRIM">Itapecuru-Mirim</option>
             </select>
           </div>
           <div id="adm-equipes-wrap" style="display:none;grid-column:1/-1">
@@ -593,7 +594,7 @@ tbody td.tl{text-align:left}
 
 <script>
 const USERS = {
-  "admin":{"hash":"a36aef5a11c4073fbe60314fc9df530a9d5f986533594d1f5190742ff9e0e408","senha_plain":"Admin@2026","nome":"Administrador","municipios":["SÃO JOSÉ DE RIBAMAR","PRIMEIRA CRUZ","SÃO ROBERTO","SANTO AMARO DO MARANHÃO"],"equipes":null,"role":"admin"},
+  "admin":{"hash":"a36aef5a11c4073fbe60314fc9df530a9d5f986533594d1f5190742ff9e0e408","senha_plain":"Admin@2026","nome":"Administrador","municipios":["SÃO JOSÉ DE RIBAMAR","PRIMEIRA CRUZ","SÃO ROBERTO","SANTO AMARO DO MARANHÃO","ITAPECURU-MIRIM"],"equipes":null,"role":"admin"},
   "gestor.sjr":{"hash":"f550dc4cc715bc50d115e4c8b6d2b7e9ad7039e0c968bcc7a3c974a392745b64","senha_plain":"SJR@2026","nome":"Gestor São José","municipios":["SÃO JOSÉ DE RIBAMAR"],"equipes":null,"role":"gestor"},
   "gestor.pc":{"hash":"2958980b32255d512054f85e12575cbc2d206089bbc5694232a42a3e38403ff0","senha_plain":"PC@2026","nome":"Gestor Primeira Cruz","municipios":["PRIMEIRA CRUZ"],"equipes":null,"role":"gestor"},
   "eq.sjr.sarney":{"hash":"5199daca6eb6334aea50b353dca4aae444953240a7607f2d207c301cf9caa107","senha_plain":"Sarney@2026","nome":"Vila Sarney Filho I","municipios":["SÃO JOSÉ DE RIBAMAR"],"equipes":["VILA SARNEY FILHO I, 0000059560"],"role":"equipe"},
@@ -602,6 +603,7 @@ const USERS = {
   "eq.pc.sede2":{"hash":"dc124d5f073abe32a9b15487d9280dc5818f45b5c414b70e2fa31533c40a78de","senha_plain":"Sede2@2026","nome":"Equipe Sede II","municipios":["PRIMEIRA CRUZ"],"equipes":["EQUIPE SEDE II, 0001586068"],"role":"equipe"}
   ,"gestor.sa":{"hash":"693940d5789577b2345712722555711d3be8737a11656ddacaca5455c028d792","senha_plain":"SA@2026","nome":"Gestor Santo Amaro","municipios":["SANTO AMARO DO MARANHÃO"],"equipes":null,"role":"gestor","status":"ativo"}
   ,"gestor.sr":{"hash":"e2b0ea35a944bc2468017afec6c7dd9b5e1fe8c1bb6ee79bf18a98c08e3126d5","senha_plain":"SR@2026","nome":"Gestor São Roberto","municipios":["SÃO ROBERTO"],"equipes":null,"role":"gestor"}
+  ,"gestor.im":{"hash":"015971fa8c62436741b4cb754a13e4f333ea068b2831b502c87d943b64e808a9","senha_plain":"Itap@2026","nome":"Gestor Itapecuru-Mirim","municipios":["ITAPECURU-MIRIM"],"equipes":null,"role":"gestor","status":"ativo"}
 };
 
 // ── State ──
@@ -1001,7 +1003,20 @@ const IND = {
       B6: {label:'Tratamento Restaurador Atraumático',desc:'% ART / total restauradores',pts:'%'},
     },
     nomColHeaders: ()=>'',
-    legendItems: [],
+    legendItems: [
+      {k:'B1', pts:'razão', label:'Primeira Consulta Programada', desc:'Razão: 1ª consulta odontológica programada / total vinculado',
+        criteria:'✔ Ótimo > 1,25 · Bom 1,00–1,25 · Suficiente 0,75–0,99 · Regular < 0,75'},
+      {k:'B2', pts:'%', label:'Tratamento Concluído', desc:'% de tratamentos odontológicos concluídos sobre 1ªs consultas',
+        criteria:'✔ Ótimo > 75% · Bom 50–75% · Suficiente 25–50% · Regular < 25%'},
+      {k:'B3', pts:'%', label:'Taxa de Exodontia', desc:'% de exodontias sobre o total de procedimentos (⚠️ menor é melhor)',
+        criteria:'✔ Ótimo 3–10% · Bom 10–12% · Suficiente 12–14% · Regular <3% ou ≥14%'},
+      {k:'B4', pts:'razão', label:'Escovação Supervisionada', desc:'Razão: crianças 6-12 anos com escovação supervisionada / total de crianças 6-12 anos',
+        criteria:'✔ Ótimo > 1,0 · Bom 0,5–1,0 · Suficiente 0,25–0,5 · Regular ≤ 0,25'},
+      {k:'B5', pts:'%', label:'Procedimentos Preventivos', desc:'% de procedimentos preventivos sobre o total de procedimentos (⚠️ faixa ideal 65–85%)',
+        criteria:'✔ Ótimo 65–85% · Bom 55–65% · Suficiente 40–55% · Regular <40% ou >85%'},
+      {k:'B6', pts:'%', label:'Tratamento Restaurador Atraumático', desc:'% de ART sobre o total de procedimentos restauradores',
+        criteria:'✔ Ótimo > 8% · Bom 6–8% · Suficiente 3–6% · Regular ≤ 3%'},
+    ],
   }
 };
 
@@ -1032,7 +1047,8 @@ const MUN_LABELS = {
   'SÃO JOSÉ DE RIBAMAR': 'São José de Ribamar',
   'PRIMEIRA CRUZ': 'Primeira Cruz',
   'SÃO ROBERTO': 'São Roberto',
-  'SANTO AMARO DO MARANHÃO': 'Santo Amaro'
+  'SANTO AMARO DO MARANHÃO': 'Santo Amaro',
+  'ITAPECURU-MIRIM': 'Itapecuru-Mirim'
 };
 
 // ── LOAD DATA ──────────────────────────────────────────────────────
@@ -1162,6 +1178,7 @@ function selectInd(ind, btn){
     if(document.getElementById('th-pessoas')) document.getElementById('th-pessoas').textContent=cfg.personLabel+' ⇅';
     if(ind==='bucal'){
       selected=new Set(SUMMARY_BUCAL.filter(s=>s.municipio===activeMun).map(s=>s.equipe));
+      activeBP=Object.keys(cfg.bp)[0];
     } else {
       activeBP=bpKeys()[0];
     }
@@ -1420,6 +1437,7 @@ function renderBPCenario(rows, keys, cfg){
 
 // ── CHARTS ───────────────────────────────────────────────────────
 function renderCharts(){
+  if(activeInd==='bucal'){ renderChartsBucal(); return; }
   const rows=getFiltered(); const stats=getStats(rows);
   if(activeTab==="grafico"){renderChScore(rows);renderChBP(rows);}
   if(activeTab==="radar"){renderChRadar(stats);}
@@ -1464,7 +1482,10 @@ function buildBPSel(){
     `<button class="bps-btn ${k===activeBP?"act":""}" style="${k===activeBP?`background:${cfg.color};border-color:${cfg.color}`:''}; " onclick="selBP('${k}')">${k} – ${cfg.bp[k].pts}pts</button>`).join('');
   document.getElementById("bp-sel-desc").textContent=cfg.bp[activeBP]?.desc||'';
 }
-function selBP(k){activeBP=k;buildBPSel();renderChBP(getFiltered());}
+function selBP(k){
+  activeBP=k; buildBPSel();
+  if(activeInd==='bucal'){ renderChartsBucal(); } else { renderChBP(getFiltered()); }
+}
 
 function switchTab(id,btn){
   if(activeInd==='vinculo')return;
@@ -1474,13 +1495,25 @@ function switchTab(id,btn){
   document.getElementById("tc-"+id).classList.add("act");
   document.querySelectorAll("#tabs .tb").forEach(b=>{b.classList.remove("act");b.style.color="#64748b";});
   btn.classList.add("act"); btn.style.color=cfg.color;
+  if(activeInd==='bucal'){
+    if(id==='geral') renderRankingBucal();
+    if(id==='bp') renderBPBucal();
+    renderChartsBucal();
+    return;
+  }
   renderCharts();
 }
 function sortBy(col){if(sortCol===col)sortDir*=-1;else{sortCol=col;sortDir=-1;}render();}
 
 function render(){
   if(activeInd==='vinculo'){renderVinculo();return;}
-  if(activeInd==='bucal'){renderLegendBucal();renderKpisBucal();renderRankingBucal();if(activeTab==='bp')renderBPBucal();return;}
+  if(activeInd==='bucal'){
+    renderLegendBucal(); renderKpisBucal(); renderRankingBucal();
+    if(activeTab==='bp') renderBPBucal();
+    buildBPSel();
+    renderCharts();
+    return;
+  }
   const rows=getFiltered(); const stats=getStats(rows);
   renderLegend(); renderKpis(rows,stats); buildBPSel();
   if(activeTab==="geral")renderRanking(rows);
@@ -1860,8 +1893,8 @@ function admRenderLista(){
   const container=document.getElementById('adm-user-list');
   const roleLabel={admin:'🔑 Admin',gestor:'🏛 Gestor Municipal',equipe:'🏥 Gestor de Equipe'};
   const roleColor={admin:'#f59e0b',gestor:'#2563eb',equipe:'#0d9488'};
-  const munOrder=['SÃO JOSÉ DE RIBAMAR','PRIMEIRA CRUZ','SÃO ROBERTO','SANTO AMARO DO MARANHÃO'];
-  const munColors={'SÃO JOSÉ DE RIBAMAR':'#2563eb','PRIMEIRA CRUZ':'#16a34a','SÃO ROBERTO':'#0891b2','SANTO AMARO DO MARANHÃO':'#7c3aed'};
+  const munOrder=['SÃO JOSÉ DE RIBAMAR','PRIMEIRA CRUZ','SÃO ROBERTO','SANTO AMARO DO MARANHÃO','ITAPECURU-MIRIM'];
+  const munColors={'SÃO JOSÉ DE RIBAMAR':'#2563eb','PRIMEIRA CRUZ':'#16a34a','SÃO ROBERTO':'#0891b2','SANTO AMARO DO MARANHÃO':'#7c3aed','ITAPECURU-MIRIM':'#dc2626'};
 
   // Separar admin dos demais
   const allUsers=Object.entries(USERS).filter(([login,u])=>
@@ -2388,6 +2421,62 @@ function renderBPBucal(){
   }).join('');
 }
 
+// ── GRÁFICOS SAÚDE BUCAL ─────────────────────────────────────────
+function renderChartsBucal(){
+  const br=munSummaryBucal(); const cfg=IND.bucal;
+  if(activeTab==='grafico'){ renderChScoreBucal(br,cfg); renderChBPBucal(br,cfg); }
+  if(activeTab==='radar'){ renderChRadarBucal(br,cfg); }
+}
+function renderChScoreBucal(br,cfg){
+  const k=activeBP||'B1';
+  const d=br.slice(0,30); const ctx=document.getElementById("ch-score");
+  if(chScore)chScore.destroy();
+  chScore=new Chart(ctx,{type:"bar",data:{labels:d.map(r=>sName(r.equipe)),datasets:[{
+    data:d.map(r=>parseFloat(r[k+'_val'])||0),
+    backgroundColor:d.map(r=>clsBucalColor(r[k+'_cls'])),borderRadius:4,borderSkipped:false}]},
+    options:{responsive:true,plugins:{legend:{display:false},
+      title:{display:true,text:`${k} — ${cfg.bp[k].label}`,font:{size:11}},
+      tooltip:{callbacks:{label:c=>dispBucal(k,c.parsed.y)}}},
+      scales:{x:{ticks:{maxRotation:45,font:{size:8.5}}},y:{beginAtZero:true,ticks:{font:{size:9}}}}}});
+}
+function renderChBPBucal(br,cfg){
+  const k=activeBP||'B1';
+  const d=br.slice(0,30); const ctx=document.getElementById("ch-bp");
+  if(chBP)chBP.destroy();
+  chBP=new Chart(ctx,{type:"bar",data:{labels:d.map(r=>sName(r.equipe)),datasets:[{
+    data:d.map(r=>parseFloat(r[k+'_val'])||0),
+    backgroundColor:d.map(r=>clsBucalColor(r[k+'_cls'])),borderRadius:4,borderSkipped:false}]},
+    options:{responsive:true,plugins:{legend:{display:false},
+      title:{display:true,text:`Comparativo — ${k}`,font:{size:11}},
+      tooltip:{callbacks:{label:c=>dispBucal(k,c.parsed.y)}}},
+      scales:{x:{ticks:{maxRotation:45,font:{size:8.5}}},y:{beginAtZero:true,ticks:{font:{size:9}}}}}});
+}
+function renderChRadarBucal(br,cfg){
+  const keys=['B1','B2','B3','B4','B5','B6'];
+  const refMax={B1:1.5,B2:100,B3:20,B4:1.2,B5:100,B6:15};
+  const ctx=document.getElementById("ch-radar");
+  const avgs=keys.map(k=>br.length?br.reduce((s,r)=>s+(parseFloat(r[k+'_val'])||0),0)/br.length:0);
+  const normVals=keys.map((k,i)=>Math.min(100,(avgs[i]/refMax[k])*100));
+  if(chRadar)chRadar.destroy();
+  chRadar=new Chart(ctx,{type:"radar",data:{labels:keys,datasets:[{
+    label:'Média do município',data:normVals,
+    backgroundColor:'rgba(8,145,178,.2)',borderColor:'#0891b2',pointBackgroundColor:'#0891b2',borderWidth:2}]},
+    options:{responsive:true,plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:c=>{const k=keys[c.dataIndex];return `${k}: ${dispBucal(k,avgs[c.dataIndex])}`;}}}},
+      scales:{r:{min:0,max:100,ticks:{stepSize:25,font:{size:8}},pointLabels:{font:{size:10,weight:'700'}}}}}});
+  // Painel de detalhe abaixo do radar (se existir)
+  const detEl=document.getElementById('ch-radar-detail');
+  if(detEl){
+    detEl.innerHTML=keys.map((k,i)=>{
+      const cls=clsBucal(k,avgs[i]); const c=clsBucalColor(cls);
+      return `<div style="display:flex;align-items:center;gap:6px;padding:4px 8px;background:#f8fafc;border-radius:6px">
+        <span style="font-weight:800;color:${cfg.dark};font-size:11px">${k}</span>
+        <span style="font-size:11px;font-weight:700;color:${c}">${dispBucal(k,avgs[i])}</span>
+        <span style="font-size:9.5px;color:${c}">${cls}</span>
+      </div>`;
+    }).join('');
+  }
+}
 
 // ── SIDEBAR E LEGENDA SAÚDE BUCAL ────────────────────────────────
 function buildBucalSidebar(){
@@ -2470,6 +2559,25 @@ function openBNomModal(equipe){
     document.getElementById('bnom-filtro-b2').value='todos';
     document.getElementById('bnom-filtro-faixa').value='todos';
     bnomFilter();
+    const cfg=IND.bucal;
+    document.getElementById('bnom-legend-panel').style.background=cfg.legendBg;
+    document.getElementById('bnom-legend-panel').innerHTML=`
+      <div class="nom-legend-title" style="color:${cfg.dark}">📌 Legenda das Boas Práticas — ${cfg.label}</div>
+      <div class="nom-legend-grid">${cfg.legendItems.map(item=>`
+        <div class="nl-item" style="border-color:${cfg.legendBorder}">
+          <div class="nl-badge" style="background:${cfg.badgeBg}">${item.k}</div>
+          <div style="display:flex;flex-direction:column;gap:2px"><div class="nl-pts" style="background:${cfg.ptsBg}">${item.pts}</div></div>
+          <div class="nl-text">
+            <div class="nl-label">${item.label}</div>
+            <div class="nl-desc">${item.desc}</div>
+            <div class="nl-criteria" style="color:${cfg.criteriaColor}">${item.criteria}</div>
+          </div>
+        </div>`).join('')}
+      </div>
+      <div class="cls-row">
+        <span style="font-size:10px;font-weight:700;color:${cfg.dark};margin-right:4px">Classificação:</span>
+        ${CLASS.map(c=>`<div class="cls-item" style="color:${c.color}"><div class="cls-dot" style="background:${c.color}"></div>${c.label}</div>`).join('')}
+      </div>`;
     document.getElementById('bnom-overlay').style.display='flex';
     document.body.style.overflow='hidden';
   });
@@ -2637,9 +2745,7 @@ function bnomFilter(){
         <tbody id="bnom-body"></tbody>
       </table>
     </div>
-    <div style="padding:10px 18px;background:#ecfeff;border-top:1px solid #a5f3fc;border-radius:0 0 14px 14px;font-size:10.5px;color:#0e7490;display:flex;gap:16px;flex-wrap:wrap">
-      <span>🦷 <strong>B1</strong> 1ª Consulta Programada &nbsp;|&nbsp; <strong>B2</strong> Tratamento Concluído &nbsp;|&nbsp; <strong>B3</strong> Nº Exodontias &nbsp;|&nbsp; <strong>B4</strong> Escovação Supervisionada (6–12a) &nbsp;|&nbsp; <strong>B5</strong> Nº Proc. Preventivos &nbsp;|&nbsp; <strong>B6</strong> ART</span>
-    </div>
+    <div id="bnom-legend-panel"></div>
   </div>
 </div>
 
